@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f7f4ed">
+<title>Mon temps de prière</title>
+<style>
+:root{--ink:#292a24;--muted:#77786f;--paper:#f7f5ef;--card:#fffefa;--accent:#596d51;--accent2:#e9eee5;--line:#e8e4da;--gold:#b18b4a}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:760px;margin:auto;padding:24px 15px 48px}.top{text-align:center;margin:8px 0 22px}.eyebrow{color:var(--accent);font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;font-weight:750}
+h1{font:500 2.15rem Georgia,serif;margin:8px 0}.sub{color:var(--muted);margin:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin:13px 0;box-shadow:0 5px 20px #342d170b}
+h2{font:500 1.35rem Georgia,serif;margin:0 0 13px}.section-note{color:var(--muted);font-size:.84rem;margin:-7px 0 13px}
+label{display:block;font-size:.86rem;font-weight:650;margin-bottom:6px}input,select,textarea{font:inherit;border:1px solid var(--line);border-radius:12px;padding:11px;width:100%;background:white;color:var(--ink);min-width:0}
+.row{display:flex;gap:10px;align-items:end}.row>div{flex:1;min-width:0}
+button{font:inherit;border:0;border-radius:13px;padding:12px 15px;font-weight:700;cursor:pointer}.primary{background:var(--accent);color:white}.secondary{background:#eeece4;color:var(--ink)}.danger{background:#f5e9e5;color:#8a3c2d}.smallbtn{padding:9px 12px;font-size:.86rem}
+.timer{text-align:center;padding:13px 0 3px}.time{font-variant-numeric:tabular-nums;font-size:clamp(3.5rem,15vw,5.4rem);font-weight:650;letter-spacing:-.06em;line-height:1.1;margin:10px 0}
+.status{color:var(--muted);font-size:.88rem;min-height:1.4em}.controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:13px}
+.counter{text-align:center}.count{font-size:3.8rem;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;margin:9px 0}
+.tap{width:min(100%,280px);min-height:100px;border-radius:23px;background:var(--accent2);color:#31452d;font-size:1.25rem;box-shadow:inset 0 -4px #d8e1d3}.tap:active{transform:scale(.985)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#f5f3ec;border-radius:14px;padding:12px 7px;text-align:center}.stat strong{display:block;font-size:1.45rem;font-variant-numeric:tabular-nums}.stat span{font-size:.75rem;color:var(--muted)}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 12px}.tab{background:#eeece4;color:var(--muted);padding:9px 12px;font-size:.86rem}.tab.active{background:var(--accent);color:white}
+.calendar-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.month{font-weight:700}.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.dow{text-align:center;color:var(--muted);font-size:.72rem;padding:4px 0}.day{border-radius:10px;min-height:43px;background:#f6f4ee;display:flex;align-items:center;justify-content:center;position:relative;font-size:.9rem}.day.muted{opacity:.35}.day.today{outline:2px solid var(--accent);outline-offset:-2px;font-weight:800}.day.has:after{content:"";position:absolute;bottom:5px;width:5px;height:5px;border-radius:50%;background:var(--accent)}.day.selected{background:var(--accent2);font-weight:800}
+.history-item{padding:11px 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px}.history-item:first-child{border-top:0}.history-item strong{display:block}.history-item small{color:var(--muted)}.empty{color:var(--muted);text-align:center;padding:12px;font-size:.9rem}
+.profile-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}.hint{font-size:.78rem;color:var(--muted)}.footer{text-align:center;color:var(--muted);font-size:.77rem;margin-top:20px}
+.fiche-sum{background:#f5f3ec;border-radius:14px;padding:11px 13px;margin-top:12px;font-size:.88rem}.fiche-sum div{margin:2px 0}.fiche-sum b{color:var(--accent)}textarea{resize:vertical;min-height:64px}.hidden{display:none!important}.field{margin-top:10px}.hist-intent{color:var(--muted);font-size:.78rem;font-style:italic}
+@media(max-width:430px){.card{padding:15px}.row{gap:7px}.stats{gap:5px}.stat{padding:10px 4px}.day{min-height:39px}}
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#596d51">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Prière">
+</head>
+<body>
+<main>
+<header class="top"><div class="eyebrow">Un moment à part</div><h1>Mon temps de prière</h1><p class="sub">Prends ton temps. Chaque prière compte.</p></header>
+
+<div class="fiche-sum hidden" id="backupBanner" style="margin:0 0 14px"><span id="backupText"></span> <button class="primary smallbtn" id="backupNow" style="margin-left:6px">Sauvegarder maintenant</button></div>
+<section class="card">
+  <h2>Mes fiches de prière</h2>
+  <p class="section-note">Une fiche par personne ou par sujet que tu portes dans la prière.</p>
+  <div class="row">
+    <div><label for="profileSelect">Fiche sélectionnée</label><select id="profileSelect"></select></div>
+    <div style="flex:0 0 auto;display:flex;gap:6px"><button class="secondary smallbtn" id="editProfile">Modifier</button><button class="secondary smallbtn" id="deleteProfile">Supprimer</button></div>
+  </div>
+  <div class="fiche-sum" id="ficheSum"></div>
+  <h2 style="margin-top:20px;font-size:1.1rem" id="formTitle">Nouvelle fiche</h2>
+  <div class="field"><label for="fPerson">Nom de la personne <span class="hint">(facultatif)</span></label><input id="fPerson" maxlength="80" placeholder="Ex. : une amie"></div>
+  <div class="field"><label for="fSubject">Sujet précis de prière</label><input id="fSubject" maxlength="120" placeholder="Ex. : prier pour sa guérison"></div>
+  <div class="field"><label for="fDesc">Description ou intentions particulières <span class="hint">(facultatif)</span></label><textarea id="fDesc" maxlength="500" placeholder="Ex. : demander à Dieu de lui accorder la force, la paix et le rétablissement."></textarea></div>
+  <div class="profile-actions"><button class="primary smallbtn" id="addProfile">+ Ajouter la fiche</button><button class="secondary smallbtn hidden" id="cancelEdit">Annuler</button><span class="hint" id="formMsg"></span></div>
+</section>
+
+<section class="card">
+  <div class="row">
+    <div style="flex:2"><label for="minutes">Durée prévue (minutes)</label><input id="minutes" type="number" min="1" max="600" value="15"></div>
+    <div><label for="sessionDate">Date de la séance</label><input id="sessionDate" type="date"></div>
+  </div>
+  <div class="timer">
+    <div class="time" id="clock">15:00</div><div class="status" id="timerStatus">Prête quand tu le seras.</div>
+    <div class="controls"><button class="primary" id="startBtn">Commencer</button><button class="secondary" id="pauseBtn" disabled>Pause</button><button class="secondary" id="resetBtn">Réinitialiser</button></div>
+  </div>
+</section>
+
+<section class="card counter">
+  <div class="hint">Nombre de fois où tu as fait ta prière pendant cette séance</div>
+  <div class="count" id="count">0</div>
+  <button class="tap" id="tapBtn">+1<br><span style="font-size:.8rem;font-weight:500">J’ai fait ma prière</span></button>
+  <div class="controls"><button class="secondary smallbtn" id="undoBtn">Annuler le dernier +1</button></div>
+  <p class="hint">Appuie une fois à chaque prière accomplie. Tu peux mettre le chronomètre en pause.</p>
+  <button class="primary" id="saveSession" style="width:100%;margin-top:9px">Terminer et enregistrer la séance</button>
+</section>
+
+<section class="card">
+  <h2>Enregistrer une séance passée</h2>
+  <p class="section-note">Tu as prié sans lancer le chronomètre ? Ajoute ta séance après coup. Elle sera ajoutée à la fiche : <b id="pastFiche"></b></p>
+  <div class="row">
+    <div><label for="pastDate">Date</label><input id="pastDate" type="date"></div>
+    <div><label for="pastTime">Heure <span class="hint">(facultatif)</span></label><input id="pastTime" type="time"></div>
+  </div>
+  <div class="row field">
+    <div><label for="pastCount">Nombre de prières</label><input id="pastCount" type="number" min="0" max="9999" value="1"></div>
+    <div><label for="pastMin">Durée (minutes)</label><input id="pastMin" type="number" min="0" max="1440" value="15"></div>
+  </div>
+  <button class="primary" id="pastSave" style="width:100%;margin-top:12px">Enregistrer cette séance</button>
+  <p class="hint" id="pastMsg" style="text-align:center;margin-bottom:0"></p>
+</section>
+
+<section class="card">
+  <h2>Mes statistiques</h2>
+  <div class="tabs"><button class="tab active" data-period="week">Cette semaine</button><button class="tab" data-period="month">Ce mois-ci</button><button class="tab" data-period="all">Tout</button></div>
+  <div class="stats">
+    <div class="stat"><strong id="statCount">0</strong><span>prières comptées</span></div>
+    <div class="stat"><strong id="statSessions">0</strong><span>séances</span></div>
+    <div class="stat"><strong id="statMinutes">0</strong><span>minutes</span></div>
+  </div>
+  <p class="hint" id="statsScope" style="margin-bottom:0;text-align:center"></p>
+</section>
+
+<section class="card">
+  <h2>Calendrier de prière</h2><p class="section-note">Les petits points indiquent les jours où tu as enregistré au moins une séance.</p>
+  <div class="calendar-head"><button class="secondary smallbtn" id="prevMonth" aria-label="Mois précédent">‹</button><div class="month" id="monthLabel"></div><button class="secondary smallbtn" id="nextMonth" aria-label="Mois suivant">›</button></div>
+  <div class="cal" id="calendar"></div><p class="hint" id="selectedDayText" style="margin-bottom:0;text-align:center"></p>
+</section>
+
+<section class="card">
+  <h2>Historique des séances</h2><div id="history"><p class="empty">Tes séances enregistrées apparaîtront ici.</p></div>
+</section>
+
+<section class="card">
+  <h2>Exporter mon historique</h2>
+  <p class="section-note">Choisis la fiche et la période, puis le format du document.</p>
+  <div class="row">
+    <div><label for="exProfile">Fiche</label><select id="exProfile"></select></div>
+    <div><label for="exPeriod">Période</label><select id="exPeriod"><option value="all">Tout l’historique</option><option value="month">Un mois précis</option><option value="week">Une semaine précise</option><option value="custom">Période personnalisée</option></select></div>
+  </div>
+  <div class="field hidden" id="exMonthBox"><label for="exMonth">Mois</label><input id="exMonth" type="month"></div>
+  <div class="field hidden" id="exWeekBox"><label for="exWeek">Un jour de la semaine voulue (du lundi au dimanche)</label><input id="exWeek" type="date"></div>
+  <div class="row field hidden" id="exCustomBox"><div><label for="exFrom">Du</label><input id="exFrom" type="date"></div><div><label for="exTo">Au</label><input id="exTo" type="date"></div></div>
+  <div class="controls"><button class="primary" id="exWord">Exporter en Word</button><button class="primary" id="exPdf">Exporter en PDF</button></div>
+  <p class="hint" id="exStatus" style="text-align:center;margin-bottom:0"></p>
+  <p class="hint" style="text-align:center;margin-bottom:0">PDF : une fenêtre d’impression s’ouvre, choisis « Enregistrer au format PDF ».</p>
+</section>
+
+<section class="card" id="stockage">
+  <h2>Stockage et sauvegarde</h2>
+  <p class="section-note" id="storInfo"></p>
+  <div class="fiche-sum" id="storStatus"></div>
+  <div class="controls"><button class="primary" id="exportBtn">Sauvegarder (fichier)</button><button class="secondary" id="importBtn">Importer une sauvegarde</button><input type="file" id="importFile" accept=".json,application/json" class="hidden"></div>
+  <div class="controls hidden" id="installBox"><button class="primary" id="installBtn">Installer l’application</button></div>
+  <p class="hint" id="storMsg" style="text-align:center;margin-bottom:0"></p>
+  <div class="controls" style="justify-content:flex-end"><button class="danger smallbtn" id="clearBtn">Tout effacer</button></div>
+</section>
+<p class="footer">Tes données restent dans ce navigateur, sur cet appareil. Exporte-les régulièrement pour en garder une copie.</p>
+</main>
+<script>
+(()=> {
+ const $=id=>document.getElementById(id), KEY='monTempsDePriere_v2', OLD='monTempsDePriere_v1';
+ const pad=n=>String(n).padStart(2,'0'), fmt=s=>`${pad(Math.floor(s/60))}:${pad(s%60)}`;
+ const toISO=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+ const isoToday=()=>toISO(new Date());
+ const dateFromISO=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+ const frDate=iso=>dateFromISO(iso).toLocaleDateString('fr-FR');
+ const esc=t=>String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+ const secs=s=>Number.isFinite(Number(s.seconds))&&s.seconds!==undefined?Number(s.seconds):(Number(s.minutes)||0)*60;
+ const dur=sec=>{sec=Math.round(sec);if(sec<60)return sec+' s';const m=Math.floor(sec/60),r=sec%60;return r?`${m} min ${pad(r)} s`:`${m} min`};
+ const label=p=>p.person?`${p.person} — ${p.subject}`:p.subject;
+ const DEFAULT=()=>({id:'general',person:'',subject:'Prière personnelle',description:''});
+ const normalize=d=>{d=d&&typeof d==='object'?d:{};
+  let profiles=(Array.isArray(d.profiles)&&d.profiles.length?d.profiles:[DEFAULT()]).map(p=>({id:p.id||('p'+Math.random().toString(16).slice(2)),person:p.person||'',subject:p.subject||p.name||'Prière personnelle',description:p.description||''}));
+  const sessions=(Array.isArray(d.sessions)?d.sessions:[]).map(s=>({...s,id:s.id||('h'+[s.profileId,s.dateKey,s.time,s.count,s.seconds,s.minutes].join('|'))}));
+  return{profiles,sessions,selected:d.selected||profiles[0].id,lastBackup:d.lastBackup||null,savedAt:Number(d.savedAt)||0}};
+ let data;try{data=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){data=null}
+ if(!data){let old=[];try{old=JSON.parse(localStorage.getItem(OLD)||'[]')}catch(e){}
+   data={profiles:[DEFAULT()],sessions:old.map((s,i)=>({...s,profileId:'general',dateKey:s.dateKey||isoToday(),id:'old'+i})),selected:'general'};
+ }
+ data=normalize(data);
+ let selected=data.selected||data.profiles[0].id, count=0, planned=900, remaining=900, interval=null,running=false,startedAt=null,elapsedBefore=0,period='week',editingId=null;
+ let viewDate=new Date();viewDate.setDate(1);let selectedDay=isoToday();
+ const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open('monTempsDePriere',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+ let ready=Promise.resolve();
+ const idbSet=j=>ready.then(()=>idb()).then(db=>new Promise((res,rej)=>{const t=db.transaction('kv','readwrite');t.objectStore('kv').put(j,'data');t.oncomplete=res;t.onerror=()=>rej(t.error)})).catch(()=>{});
+ const idbGet=()=>idb().then(db=>new Promise((res,rej)=>{const q=db.transaction('kv').objectStore('kv').get('data');q.onsuccess=()=>res(q.result||null);q.onerror=()=>rej(q.error)})).catch(()=>null);
+ const persist=()=>{data.selected=selected;data.savedAt=Date.now();const j=JSON.stringify(data);try{localStorage.setItem(KEY,j)}catch(e){}idbSet(j);drawStorage()};
+ function mergeData(src){let added=0;const pid=new Set(data.profiles.map(p=>p.id)),sid=new Set(data.sessions.map(s=>s.id));
+  src.profiles.forEach(p=>{if(!pid.has(p.id)){data.profiles.push(p);pid.add(p.id);added++}});
+  src.sessions.forEach(s=>{if(!sid.has(s.id)&&pid.has(s.profileId)){data.sessions.push(s);sid.add(s.id);added++}});return added}
+ const profile=()=>data.profiles.find(p=>p.id===selected)||data.profiles[0];
+ const minutes=()=>Math.max(1,Math.min(600,parseInt($('minutes').value,10)||15));
+ const sessionsForProfile=()=>data.sessions.filter(s=>s.profileId===selected);
+
+ function drawProfiles(){
+  const sel=$('profileSelect'),ex=$('exProfile'),exVal=ex.value||'all';sel.innerHTML='';ex.innerHTML='';
+  const all=document.createElement('option');all.value='all';all.textContent='Toutes les fiches';ex.append(all);
+  data.profiles.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=label(p);sel.append(o);ex.append(o.cloneNode(true))});
+  if(!data.profiles.some(p=>p.id===selected))selected=data.profiles[0].id;sel.value=selected;
+  ex.value=[...ex.options].some(o=>o.value===exVal)?exVal:'all';
+  $('deleteProfile').disabled=data.profiles.length===1;
+  const p=profile(),box=$('ficheSum');box.innerHTML='';
+  const line=(k,v)=>{if(!v)return;const d=document.createElement('div'),b=document.createElement('b');b.textContent=k+' : ';d.append(b,document.createTextNode(v));box.append(d)};
+  $('pastFiche').textContent=label(p);
+  line('Personne',p.person);line('Sujet',p.subject);line('Intention',p.description);
+ }
+ function drawStats(){
+  const now=new Date(), all=sessionsForProfile();
+  let from=null,to=null,lab='Toutes les séances';
+  if(period==='week'){const day=(now.getDay()+6)%7;from=new Date(now);from.setDate(now.getDate()-day);from.setHours(0,0,0,0);to=new Date(from);to.setDate(from.getDate()+7);lab='Du lundi au dimanche'}
+  if(period==='month'){from=new Date(now.getFullYear(),now.getMonth(),1);to=new Date(now.getFullYear(),now.getMonth()+1,1);lab='Mois en cours'}
+  const filtered=all.filter(s=>{const d=dateFromISO(s.dateKey||isoToday());return !from||(d>=from&&d<to)});
+  $('statCount').textContent=filtered.reduce((a,s)=>a+(Number(s.count)||0),0);
+  $('statSessions').textContent=filtered.length;
+  $('statMinutes').textContent=Math.round(filtered.reduce((a,s)=>a+secs(s),0)/60);
+  $('statsScope').textContent=label(profile())+' · '+lab;
+ }
+ function drawCalendar(){
+  const y=viewDate.getFullYear(),m=viewDate.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0);
+  $('monthLabel').textContent=new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(first);
+  const host=$('calendar');host.innerHTML='';
+  ['L','M','M','J','V','S','D'].forEach(x=>{const e=document.createElement('div');e.className='dow';e.textContent=x;host.append(e)});
+  const offset=(first.getDay()+6)%7;
+  for(let i=0;i<offset;i++){const e=document.createElement('div');e.className='day muted';host.append(e)}
+  const keys=new Set(sessionsForProfile().map(s=>s.dateKey));
+  for(let n=1;n<=last.getDate();n++){const key=`${y}-${pad(m+1)}-${pad(n)}`,e=document.createElement('button');e.className='day'+(keys.has(key)?' has':'')+(key===isoToday()?' today':'')+(key===selectedDay?' selected':'');e.textContent=n;e.setAttribute('aria-label',key);e.addEventListener('click',()=>{selectedDay=key;drawCalendar();drawHistory()});host.append(e)}
+  $('selectedDayText').textContent='Jour sélectionné : '+dateFromISO(selectedDay).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+ }
+ function drawHistory(){
+  const host=$('history'),list=sessionsForProfile().filter(s=>s.dateKey===selectedDay).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  host.innerHTML='';
+  if(!list.length){host.innerHTML='<p class="empty">Aucune séance enregistrée pour ce jour et cette fiche.</p>';return}
+  list.forEach(s=>{
+   const el=document.createElement('div');el.className='history-item';const left=document.createElement('div'),right=document.createElement('div');
+   const b=document.createElement('strong');b.textContent=s.person?`${s.person} — ${s.subject||''}`:(s.subject||label(profile()));
+   const sm=document.createElement('small');sm.textContent=(s.time||'')+' · '+dur(secs(s));left.append(b,sm);
+   if(s.description){const i=document.createElement('div');i.className='hist-intent';i.textContent=s.description;left.append(i)}
+   right.style.textAlign='right';const n=document.createElement('strong');n.textContent=s.count+' fois';const sm2=document.createElement('small');sm2.textContent='comptées';right.append(n,sm2);el.append(left,right);host.append(el)});
+ }
+ function renderAll(){drawProfiles();drawStats();drawCalendar();drawHistory()}
+
+ /* ---------- Chronomètre ---------- */
+ function setStatus(s){$('timerStatus').textContent=s}
+ function stop(){if(interval){clearInterval(interval);interval=null}running=false}
+ function showClock(){$('clock').textContent=fmt(remaining)}
+ function reset(){stop();elapsedBefore=0;startedAt=null;planned=minutes()*60;remaining=planned;showClock();$('startBtn').disabled=false;$('startBtn').textContent='Commencer';$('pauseBtn').disabled=true;setStatus('Prête quand tu le seras.')}
+ function tick(){
+  if(!running)return;
+  const elapsed=elapsedBefore+Math.floor((Date.now()-startedAt)/1000);
+  remaining=Math.max(0,planned-elapsed);showClock();
+  if(!remaining){
+   elapsedBefore=planned;   // CORRECTION : on conserve la durée écoulée avant d'arrêter
+   startedAt=null;stop();
+   $('startBtn').disabled=true;$('startBtn').textContent='Terminé';$('pauseBtn').disabled=true;
+   setStatus('Temps écoulé ('+dur(planned)+'). Tu peux enregistrer ta séance.');
+  }
+ }
+ const currentElapsed=()=>Math.min(planned,elapsedBefore+(running&&startedAt?Math.floor((Date.now()-startedAt)/1000):0));
+ $('startBtn').onclick=()=>{if(running||remaining<=0)return;startedAt=Date.now();running=true;interval=setInterval(tick,250);$('startBtn').disabled=true;$('startBtn').textContent='En cours…';$('pauseBtn').disabled=false;setStatus('Ta séance est en cours.')};
+ $('pauseBtn').onclick=()=>{if(!running)return;elapsedBefore=currentElapsed();startedAt=null;stop();remaining=Math.max(0,planned-elapsedBefore);showClock();$('startBtn').disabled=false;$('startBtn').textContent='Reprendre';$('pauseBtn').disabled=true;setStatus('Séance en pause.')};
+ $('resetBtn').onclick=reset;$('minutes').onchange=()=>{if(!running&&elapsedBefore===0)reset()};
+ $('tapBtn').onclick=()=>{$('count').textContent=++count};$('undoBtn').onclick=()=>{$('count').textContent=--count<0?(count=0):count};
+ $('saveSession').onclick=()=>{
+  const elapsed=currentElapsed();
+  if(!count&&!elapsed){setStatus('Aucune activité à enregistrer.');return}
+  stop();const d=new Date(),dateKey=$('sessionDate').value||isoToday(),p=profile();
+  data.sessions.push({id:String(Date.now())+Math.random().toString(16).slice(2),profileId:p.id,person:p.person,subject:p.subject,description:p.description,count,seconds:elapsed,minutes:Math.round(elapsed/60),dateKey,date:frDate(dateKey),time:d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})});
+  persist();count=0;$('count').textContent='0';reset();setStatus('Séance enregistrée ('+dur(elapsed)+'). Que la paix t’accompagne.');selectedDay=dateKey;viewDate=dateFromISO(dateKey);viewDate.setDate(1);renderAll();
+ };
+
+ /* ---------- Fiches ---------- */
+ function clearForm(){editingId=null;$('fPerson').value='';$('fSubject').value='';$('fDesc').value='';$('formTitle').textContent='Nouvelle fiche';$('addProfile').textContent='+ Ajouter la fiche';$('cancelEdit').classList.add('hidden');$('formMsg').textContent=''}
+ $('addProfile').onclick=()=>{
+  const person=$('fPerson').value.trim(),subject=$('fSubject').value.trim(),description=$('fDesc').value.trim();
+  if(!subject){$('formMsg').textContent='Le sujet de prière est obligatoire.';$('fSubject').focus();return}
+  if(editingId){
+   const p=data.profiles.find(x=>x.id===editingId);if(p){p.person=person;p.subject=subject;p.description=description}
+   data.sessions.forEach(s=>{if(s.profileId===editingId){s.person=person;s.subject=subject;s.description=description}});
+   clearForm();persist();renderAll();return;
+  }
+  const p={id:'p'+Date.now(),person,subject,description};data.profiles.push(p);selected=p.id;clearForm();persist();renderAll();reset();
+ };
+ $('editProfile').onclick=()=>{const p=profile();editingId=p.id;$('fPerson').value=p.person;$('fSubject').value=p.subject;$('fDesc').value=p.description;$('formTitle').textContent='Modifier la fiche';$('addProfile').textContent='Enregistrer les modifications';$('cancelEdit').classList.remove('hidden');$('formMsg').textContent='';$('fSubject').focus();$('fSubject').scrollIntoView({block:'center',behavior:'smooth'})};
+ $('cancelEdit').onclick=clearForm;
+ $('profileSelect').onchange=e=>{selected=e.target.value;persist();selectedDay=isoToday();renderAll()};
+ $('deleteProfile').onclick=()=>{if(data.profiles.length<=1)return;const p=profile();if(!confirm('Supprimer la fiche « '+label(p)+' » et toutes ses séances ?'))return;data.sessions=data.sessions.filter(s=>s.profileId!==selected);data.profiles=data.profiles.filter(x=>x.id!==selected);selected=data.profiles[0].id;if(editingId)clearForm();persist();renderAll();reset()};
+ document.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>{period=b.dataset.period;document.querySelectorAll('[data-period]').forEach(x=>x.classList.toggle('active',x===b));drawStats()});
+ $('prevMonth').onclick=()=>{viewDate.setMonth(viewDate.getMonth()-1);drawCalendar()};$('nextMonth').onclick=()=>{viewDate.setMonth(viewDate.getMonth()+1);drawCalendar()};
+ $('sessionDate').value=isoToday();
+
+
+ /* ---------- Séance passée ---------- */
+ const yesterday=()=>{const d=new Date();d.setDate(d.getDate()-1);return toISO(d)};
+ $('pastDate').value=yesterday();
+ $('pastSave').onclick=()=>{
+  const dateKey=$('pastDate').value,c=Math.max(0,parseInt($('pastCount').value,10)||0),m=Math.max(0,parseFloat($('pastMin').value)||0),t=$('pastTime').value;
+  if(!dateKey){$('pastMsg').textContent='Choisis la date de la séance.';return}
+  if(dateKey>isoToday()){$('pastMsg').textContent='Cette date est dans le futur.';return}
+  if(!c&&!m){$('pastMsg').textContent='Indique au moins un nombre de prières ou une durée.';return}
+  const p=profile(),sec=Math.round(m*60);
+  data.sessions.push({id:String(Date.now())+Math.random().toString(16).slice(2),profileId:p.id,person:p.person,subject:p.subject,description:p.description,count:c,seconds:sec,minutes:Math.round(sec/60),dateKey,date:frDate(dateKey),time:t,manual:true});
+  persist();selectedDay=dateKey;viewDate=dateFromISO(dateKey);viewDate.setDate(1);renderAll();
+  $('pastMsg').textContent='Séance du '+frDate(dateKey)+' enregistrée ('+c+' prière'+(c>1?'s':'')+', '+dur(sec)+').';
+ };
+ /* ---------- Exportation ---------- */
+ const exStatus=t=>{$('exStatus').textContent=t};
+ $('exPeriod').onchange=()=>{const v=$('exPeriod').value;$('exMonthBox').classList.toggle('hidden',v!=='month');$('exWeekBox').classList.toggle('hidden',v!=='week');$('exCustomBox').classList.toggle('hidden',v!=='custom');exStatus('')};
+ $('exMonth').value=isoToday().slice(0,7);$('exWeek').value=isoToday();$('exFrom').value=isoToday().slice(0,8)+'01';$('exTo').value=isoToday();
+ function rangeFromUI(){
+  const m=$('exPeriod').value;
+  if(m==='all')return{from:'0000-01-01',to:'9999-12-31',label:'Tout l’historique'};
+  if(m==='month'){const v=$('exMonth').value;if(!v)return{error:'Choisis un mois.'};const [y,mo]=v.split('-').map(Number),last=new Date(y,mo,0).getDate();
+   const name=new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(new Date(y,mo-1,1));return{from:v+'-01',to:`${v}-${pad(last)}`,label:'Mois de '+name}}
+  if(m==='week'){const v=$('exWeek').value;if(!v)return{error:'Choisis un jour de la semaine voulue.'};const d=dateFromISO(v),mon=new Date(d);mon.setDate(d.getDate()-((d.getDay()+6)%7));const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+   return{from:toISO(mon),to:toISO(sun),label:`Semaine du ${frDate(toISO(mon))} au ${frDate(toISO(sun))}`}}
+  const f=$('exFrom').value,t=$('exTo').value;if(!f||!t)return{error:'Renseigne les deux dates.'};if(f>t)return{error:'La date de début doit précéder la date de fin.'};
+  return{from:f,to:t,label:`Du ${frDate(f)} au ${frDate(t)}`};
+ }
+ function buildReport(){
+  const r=rangeFromUI();if(r.error){exStatus(r.error);return null}
+  const fid=$('exProfile').value;
+  const list=data.sessions.filter(s=>s.dateKey>=r.from&&s.dateKey<=r.to&&(fid==='all'||s.profileId===fid)).sort((a,b)=>(a.dateKey+(a.time||'')).localeCompare(b.dateKey+(b.time||'')));
+  if(!list.length){exStatus('Aucune séance pour cette sélection.');return null}
+  exStatus('');
+  const css='body{font-family:Georgia,"Times New Roman",serif;color:#292a24;margin:24px}h1{font-size:22pt;margin:0 0 4px;color:#3f4f39}h2{font-size:14pt;margin:22px 0 4px;color:#3f4f39}p{margin:3px 0;font-size:11pt}.meta{color:#666;font-size:10pt}table{border-collapse:collapse;width:100%;margin-top:8px}th,td{border:1px solid #cfcab9;padding:5px 8px;font-size:10.5pt;text-align:left}th{background:#e9eee5}td.n,th.n{text-align:right}tr.tot td{font-weight:bold;background:#f5f3ec}.intent{font-style:italic}';
+  let body=`<h1>Mon temps de prière</h1><p class="meta">${esc(r.label)} · ${fid==='all'?'Toutes les fiches':esc(label(data.profiles.find(p=>p.id===fid)||{subject:''}))} · édité le ${frDate(isoToday())}</p>`;
+  const totC=list.reduce((a,s)=>a+(Number(s.count)||0),0),totS=list.reduce((a,s)=>a+secs(s),0);
+  body+=`<p><b>${list.length}</b> séance(s) · <b>${totC}</b> prière(s) comptée(s) · durée totale <b>${esc(dur(totS))}</b></p>`;
+  data.profiles.filter(p=>list.some(s=>s.profileId===p.id)).forEach(p=>{
+   const rows=list.filter(s=>s.profileId===p.id);
+   body+=`<h2>${esc(label(p))}</h2>`;
+   if(p.person)body+=`<p><b>Personne :</b> ${esc(p.person)}</p>`;
+   body+=`<p><b>Sujet :</b> ${esc(p.subject)}</p>`;
+   if(p.description)body+=`<p class="intent"><b>Intention :</b> ${esc(p.description)}</p>`;
+   body+='<table><tr><th>Date</th><th>Heure</th><th class="n">Prières</th><th class="n">Durée</th></tr>';
+   rows.forEach(s=>{body+=`<tr><td>${esc(frDate(s.dateKey))}</td><td>${esc(s.time||'')}</td><td class="n">${Number(s.count)||0}</td><td class="n">${esc(dur(secs(s)))}</td></tr>`});
+   body+=`<tr class="tot"><td colspan="2">Total (${rows.length} séance${rows.length>1?'s':''})</td><td class="n">${rows.reduce((a,s)=>a+(Number(s.count)||0),0)}</td><td class="n">${esc(dur(rows.reduce((a,s)=>a+secs(s),0)))}</td></tr></table>`;
+  });
+  return{css,body};
+ }
+ const fileStamp=()=>'historique-priere-'+isoToday();
+ $('exWord').onclick=()=>{
+  const r=buildReport();if(!r)return;
+  const html='\ufeff<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Mon temps de prière</title><style>'+r.css+'</style></head><body>'+r.body+'</body></html>';
+  const url=URL.createObjectURL(new Blob([html],{type:'application/msword;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=fileStamp()+'.doc';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+  exStatus('Document Word créé.');
+ };
+ $('exPdf').onclick=()=>{
+  const r=buildReport();if(!r)return;
+  const html='<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>'+fileStamp()+'</title><style>'+r.css+'@page{margin:16mm}</style></head><body>'+r.body+'</body></html>';
+  const w=window.open('','_blank');
+  if(w){w.document.open();w.document.write(html);w.document.close();w.focus();setTimeout(()=>{try{w.print()}catch(e){}},400)}
+  else{const f=document.createElement('iframe');f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0';document.body.append(f);f.contentDocument.open();f.contentDocument.write(html);f.contentDocument.close();setTimeout(()=>{f.contentWindow.focus();f.contentWindow.print();setTimeout(()=>f.remove(),3000)},400)}
+  exStatus('Choisis « Enregistrer au format PDF » dans la fenêtre d’impression.');
+ };
+ $('exportBtn').onclick=()=>{data.lastBackup=new Date().toISOString();persist();const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='sauvegarde-priere-'+isoToday()+'.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);$('storMsg').textContent='Sauvegarde téléchargée. Garde-la dans un endroit sûr (Drive, e-mail, ordinateur).'};
+ $('backupNow').onclick=()=>$('exportBtn').click();
+ $('importBtn').onclick=()=>$('importFile').click();
+ $('importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{let d;try{d=JSON.parse(t)}catch(x){$('storMsg').textContent='Fichier illisible.';return}
+  if(Array.isArray(d))d={sessions:d.map(s=>({...s,profileId:'general'}))};
+  if(!d||typeof d!=='object'||(!Array.isArray(d.sessions)&&!Array.isArray(d.profiles))){$('storMsg').textContent='Ce fichier n’est pas une sauvegarde valide.';return}
+  const n=mergeData(normalize(d));persist();renderAll();$('storMsg').textContent=n?n+' élément(s) restauré(s) ou ajouté(s).':'Rien de nouveau : tout était déjà présent.'}).finally(()=>{e.target.value=''})};
+ async function drawStorage(){
+  const box=$('storStatus');if(!box)return;
+  const local=location.protocol==='file:';
+  let persisted=null,usage=null;
+  try{if(navigator.storage&&navigator.storage.persisted)persisted=await navigator.storage.persisted();if(navigator.storage&&navigator.storage.estimate)usage=(await navigator.storage.estimate()).usage}catch(e){}
+  const days=data.lastBackup?Math.floor((Date.now()-Date.parse(data.lastBackup))/86400000):null;
+  box.innerHTML='';
+  const line=(k,v,warn)=>{const d=document.createElement('div'),b=document.createElement('b');b.textContent=k+' : ';d.append(b,document.createTextNode(v));if(warn)d.style.color='#b3541e';box.append(d)};
+  line('Contenu',`${data.profiles.length} fiche(s), ${data.sessions.length} séance(s)`);
+  line('Protection du navigateur',persisted===null?'non disponible ici':persisted?'activée':'non activée',persisted===false);
+  if(usage!=null)line('Espace utilisé',Math.max(0.1,usage/1024).toFixed(1)+' Ko');
+  line('Dernière sauvegarde',days===null?'jamais':days===0?'aujourd’hui':`il y a ${days} jour${days>1?'s':''}`,data.sessions.length>0&&(days===null||days>=7));
+  $('storInfo').textContent=local?'Tu ouvres ce fichier directement depuis ton appareil : le navigateur peut effacer ses données sans prévenir. Héberge l’application (voir le guide) et fais des sauvegardes régulières.':'Tes données sont gardées à deux endroits dans ce navigateur. Une sauvegarde en fichier reste la meilleure protection.';
+  const stale=data.sessions.length>0&&(days===null||days>=7);
+  $('backupBanner').classList.toggle('hidden',!stale);
+  $('backupText').textContent=days===null?'Tu n’as pas encore fait de sauvegarde.':`Dernière sauvegarde il y a ${days} jours.`;
+ }
+ let deferredInstall=null;
+ window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;$('installBox').classList.remove('hidden')});
+ window.addEventListener('appinstalled',()=>$('installBox').classList.add('hidden'));
+ $('installBtn').onclick=()=>{if(!deferredInstall)return;deferredInstall.prompt();deferredInstall.userChoice.finally(()=>{deferredInstall=null;$('installBox').classList.add('hidden')})};
+ if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+ $('clearBtn').onclick=()=>{if(confirm('Effacer toutes les fiches et toutes les séances enregistrées sur cet appareil ?')){data={profiles:[DEFAULT()],sessions:[],selected:'general'};selected='general';clearForm();persist();renderAll();reset()}};
+ reset();renderAll();
+ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().then(drawStorage).catch(()=>{});
+ // Récupération : si le stockage principal a perdu des données, on les retrouve dans la copie IndexedDB
+ ready=idbGet().then(j=>{let n=0;if(j){try{n=mergeData(normalize(JSON.parse(j)))}catch(e){}}
+  if(n){if(!data.profiles.some(p=>p.id===selected))selected=data.profiles[0].id;renderAll();setStatus('Des données ont été retrouvées dans la copie de secours.')}
+  persist()});
+})();
+</script>
+</body>
+</html>

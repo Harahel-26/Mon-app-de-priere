@@ -1,0 +1,15 @@
+MON TEMPS DE PRIÈRE — application installable
+
+Contenu : index.html, manifest.webmanifest, sw.js, icon-192.png, icon-512.png
+Ces 5 fichiers doivent rester ensemble, dans le même dossier.
+
+Hébergement gratuit (HTTPS obligatoire pour l'installation) :
+ • Netlify Drop : va sur app.netlify.com/drop, glisse le dossier, tu obtiens un lien.
+ • GitHub Pages : crée un dépôt, envoie les 5 fichiers, puis Settings > Pages > Deploy from a branch (main, /root).
+
+Installation :
+ • Android (Chrome) : bouton « Installer l'application » dans l'appli, ou menu ⋮ > Installer l'application.
+ • iPhone (Safari) : Partager > Sur l'écran d'accueil.
+ • Ordinateur (Chrome/Edge) : icône d'installation dans la barre d'adresse.
+
+Sauvegarde : utilise « Sauvegarder (fichier) » au moins une fois par semaine.
